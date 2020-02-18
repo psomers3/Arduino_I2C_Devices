@@ -31,37 +31,18 @@
 #error Platform not defined
 #endif // end IDE
 
-// Set parameters
 
+#include "src/DeviceManager/DeviceManager.hpp"
+#include "Wire.h"
 
-// Include application, user and local libraries
-// !!! Help http://bit.ly/2CL22Qp
+#define I2C_ADDR 0x03
 
+DeviceManager manager(20);
 
-// Define structures and classes
-
-
-// Define variables and constants
-
-
-// Prototypes
-// !!! Help: http://bit.ly/2l0ZhTa
-
-
-// Utilities
-
-
-// Functions
-
-
-// Add setup code
-void setup()
-{
-    ;
+void setup() {
+    Wire.begin(I2C_ADDR);                // join i2c bus with address #2
+    Wire.onRequest(manager.recieve_msg); // register event
+    Serial.begin(9600); // open the serial port at 9600 bps:
 }
 
-// Add loop code
-void loop()
-{
-    ;
-}
+void loop() {}
