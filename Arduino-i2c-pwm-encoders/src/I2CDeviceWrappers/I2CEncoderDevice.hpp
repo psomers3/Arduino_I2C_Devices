@@ -16,16 +16,8 @@
 
 
 
-class I2CEncoderDevice
+class I2CEncoderDevice : public I2CDeviceWrapper
 {
-private:
-    AngleSensor* _sensor;
-    void return_position();
-    void return_speed();
-    void return_angle();
-    void zero();
-    void set_degrees(bool use_degrees);
-    void set_resolution(uint16_t pulses_per_rev);
 public:
     enum class Cmd : uint16_t
     {
@@ -41,6 +33,16 @@ public:
     void process_msg(char* msg, uint16_t length);
     static void update_all(){AngleSensor::update_all();}
     void remove_from_sensors(){_sensor->remove_from_sensors(); delete _sensor;}
+    
+private:
+    AngleSensor* _sensor;
+    void return_position();
+    void return_speed();
+    void return_angle();
+    void zero();
+    void set_degrees(bool use_degrees);
+    void set_resolution(uint16_t pulses_per_rev);
+
 };
 
 

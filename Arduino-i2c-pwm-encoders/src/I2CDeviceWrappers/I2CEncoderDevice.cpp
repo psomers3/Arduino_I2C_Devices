@@ -36,6 +36,7 @@ void I2CEncoderDevice::process_msg(char *msg, uint16_t length)
         case Cmd::SET_RESOLUTION:
             set_resolution(*reinterpret_cast<uint16_t*>(&msg[1]));
             break;
+            
         default:
             Wire.write(0xff);
             break;
