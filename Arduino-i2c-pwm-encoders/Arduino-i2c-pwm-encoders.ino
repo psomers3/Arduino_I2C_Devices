@@ -35,13 +35,16 @@
 #include "src/DeviceManager/DeviceManager.hpp"
 #include "Wire.h"
 
-#define I2C_ADDR 0x03
+#define I2C_ADDR 4
 
 DeviceManager manager(20);
 
+void recieve_test(int howmany);
+
 void setup() {
-    Wire.begin(I2C_ADDR);                // join i2c bus with address #2
-    Wire.onRequest(manager.recieve_msg); // register event
+    Wire.begin(I2C_ADDR); // join i2c bus with address
+    Wire.onReceive(manager.recieve_msg);
+    Wire.onRequest(manager.parse_message); // register event
     Serial.begin(9600); // open the serial port at 9600 bps:
 }
 

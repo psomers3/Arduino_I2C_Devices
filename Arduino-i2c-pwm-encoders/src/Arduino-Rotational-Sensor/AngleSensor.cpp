@@ -1,11 +1,8 @@
 #include "AngleSensor.hpp"
 #include <Arduino.h>
 
-#ifdef RADIANS
-  #define RADIANPERTICK 0.0026179939
-#else
-  #define DEGREEPERTICK 0.15
-#endif
+#define DEGREES 360
+#define RADIANS 6.283185
 
 uint8_t AngleSensor::m_num_sensors = 0;
 AngleSensor* AngleSensor::m_AngleSensor_ptr[MaxNumofSensors];
@@ -15,6 +12,11 @@ AngleSensor::AngleSensor(uint8_t pinA, uint8_t pinB):m_encoder(pinA,pinB)
 {
     m_AngleSensor_ptr[m_num_sensors] = this;
     m_num_sensors++;
+    m_pulses_per_rev = 2400;
+    m_degree_per_tick = (float)DEGREES/(float)m_pulses_per_rev;
+    m_radian_per_tick = (float)RADIANS/(float)m_pulses_per_rev;
+    m_use_degrees = true;
+    m_counts_since_last_tick = 0;
 }
 
 uint8_t AngleSensor::get_num_sensors()
@@ -27,17 +29,39 @@ AngleSensor* AngleSensor::get_sensor_ptr(uint8_t index)
   return m_AngleSensor_ptr[index];
 }
 
+float AngleSensor::return_angle()
+{
+    return m_last_angle;
+}
+
 float AngleSensor::get_angle()
 {
-  #ifdef DEGREEPERTICK
-    return (float)get_position()*DEGREEPERTICK;
-  #else
-    return (float)get_position()*RADIANPERTICK;
-  #endif
+    if (m_use_degrees)
+        return (float)get_position()*m_degree_per_tick;
+    else
+        return (float)get_position()*m_radian_per_tick;
 }
 
 //destructor
-AngleSensor::~AngleSensor(){m_num_sensors--;}
+AngleSensor::~AngleSensor(){}
+
+void AngleSensor::remove_from_sensors()
+{
+    AngleSensor* temp_array[MaxNumofSensors];
+    int curr_index = 0;
+    for (int i=0; i < AngleSensor::get_num_sensors(); i++)
+    {
+        if (AngleSensor::get_sensor_ptr(i) != this)
+        {
+            temp_array[curr_index] = AngleSensor::get_sensor_ptr(i);
+        }
+    }
+    for (int i=0; i < AngleSensor::get_num_sensors(); i++)
+    {
+        m_AngleSensor_ptr[i] == temp_array[i];
+    }
+    m_num_sensors--;
+}
 
 int32_t AngleSensor::get_position()
 {
@@ -46,9 +70,15 @@ int32_t AngleSensor::get_position()
 
 void AngleSensor::update_velocity(float sampling_freq)
 {
-  float curr_angle = get_angle();
-  m_velocity = (curr_angle - m_last_angle) * sampling_freq;
-  m_last_angle = curr_angle;
+    float curr_angle = get_angle();
+    
+    if (curr_angle - m_last_angle != 0)
+    {
+        m_counts_since_last_tick=0;
+    }
+    m_counts_since_last_tick ++;
+    m_velocity = (curr_angle - m_last_angle) * sampling_freq*m_counts_since_last_tick;
+    m_last_angle = curr_angle;
 }
 
 float AngleSensor::get_velocity()
@@ -65,12 +95,8 @@ void AngleSensor::zero()
 
 void AngleSensor::set_angle(float angle)
 {
-  #ifdef DEGREEPERTICK
-    int32_t pos = angle / DEGREEPERTICK;
-  #else
-    int32_t pos = angle / RADIANPERTICK;
-  #endif
-
+    int32_t pos;
+    m_use_degrees ? pos = angle / m_degree_per_tick : pos = angle/m_radian_per_tick;
   m_last_angle = angle;
   m_encoder.write(pos);
 }
@@ -94,4 +120,16 @@ static void AngleSensor::zero_all()
 static void AngleSensor::set_global_update_freq(float freq)
 {
     m_global_update_freq = freq;
+}
+
+void AngleSensor::set_degrees(bool use_degrees)
+{
+    m_use_degrees = use_degrees;
+}
+
+void AngleSensor::set_pulses_per_rev(uint16_t pulses_per_rev)
+{
+    m_pulses_per_rev = pulses_per_rev;
+    m_degree_per_tick = DEGREES/m_pulses_per_rev;
+    m_radian_per_tick = RADIANS/m_pulses_per_rev;
 }

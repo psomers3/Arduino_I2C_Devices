@@ -18,25 +18,29 @@
 
 class I2CEncoderDevice
 {
+private:
+    AngleSensor* _sensor;
+    void return_position();
+    void return_speed();
+    void return_angle();
+    void zero();
+    void set_degrees(bool use_degrees);
+    void set_resolution(uint16_t pulses_per_rev);
 public:
     enum class Cmd : uint16_t
     {
         GET_POSITION = 0x00,
         GET_SPEED = 0x01,
-        ZERO = 0x02,
-        SET_ANGLE = 0x03,
+        GET_ANGLE = 0x02,
+        ZERO = 0x03,
+        SET_DEGREES = 0x05,
+        SET_RESOLUTION = 0x06
     };
     
     I2CEncoderDevice(uint8_t pinA, uint8_t pinB);
     void process_msg(char* msg, uint16_t length);
     static void update_all(){AngleSensor::update_all();}
-    
-private:
-    AngleSensor* _sensor;
-    void return_position();
-    void return_speed();
-    void zero();
-    void set_angle();
+    void remove_from_sensors(){_sensor->remove_from_sensors(); delete _sensor;}
 };
 
 

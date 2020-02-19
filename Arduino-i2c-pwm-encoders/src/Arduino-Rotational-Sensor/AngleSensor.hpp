@@ -2,11 +2,9 @@
 #define AngleSensor_hpp
 
 #define ENCODER_USE_INTERRUPTS
+#include "stdlib.h"
 #include "Encoder.h"
 #include <Arduino.h>
-
-#define RADIANS
-//#define DEGREES
 
 #define MaxNumofSensors 5
 
@@ -22,7 +20,11 @@ private:
     static uint8_t get_num_sensors();
     static AngleSensor* get_sensor_ptr(uint8_t index);
     static float m_global_update_freq;
-
+    uint16_t m_pulses_per_rev;
+    bool m_use_degrees;
+    float m_degree_per_tick;
+    float m_radian_per_tick;
+    uint32_t m_counts_since_last_tick;
     
 public:
     ///Constructor
@@ -91,6 +93,22 @@ public:
      * @param freq Frequency to update at in Hz.
      */
     static void set_global_update_freq(float freq);
+    
+    /// Sets the sensor to use degrees or radians
+    /**
+     * @param use_degrees Whether or not to use degrees for returning values.
+     */
+    void set_degrees(bool use_degrees);
+    
+    /// Sets the resolution of the encoder
+    /**
+     * @param pulses_per_rev Number of pulses for one full revolution of the encoder.
+     */
+    void set_pulses_per_rev(uint16_t pulses_per_rev);
+    
+    float return_angle();
+    
+    void remove_from_sensors();
     
 };//AngleSensor
 

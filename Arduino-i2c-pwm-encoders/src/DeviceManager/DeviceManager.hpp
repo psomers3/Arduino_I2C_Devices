@@ -21,7 +21,9 @@ enum class MsgCmd : uint8_t
     NEW_PWM_DEVICE = 0x00,        // CREATE A NEW PWM DEVICE
     NEW_ENCODER_DEVICE = 0x01,    // CREATE A NEW PWM DEVICE
     CLEAR_DEVICES = 0X02,         // DELETE ALL STORED DEVICES
-    FWD_TO_DEV = 0x04             // PASS MSG ON TO DEVICE TO HANDLE
+    FWD_TO_DEV = 0x04,             // PASS MSG ON TO DEVICE TO HANDLE
+    SET_ENCODER_UPDATE_FREQ = 0x05
+    
 };
 
 /**
@@ -40,6 +42,8 @@ public:
     // recieve an I2C message and decide what to do with it
     static void recieve_msg(int how_many);
     static void parse_message();
+    static void set_encoder_update_freq(uint16_t freq);
+    static void clear_devices();
     
 private:
     static DeviceManager* _singleton_handler;
@@ -48,7 +52,7 @@ private:
     static char _recieve_msg_buffer[];
     static I2CEncoderDevice* _devices[];
     static uint8_t _num_devices;
-    static uint16_t _message_size;
+    static int _message_size;
     
 };
 
