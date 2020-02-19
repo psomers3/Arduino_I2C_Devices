@@ -86,6 +86,7 @@ void DeviceManager::add_encoder_device(char* msg, uint16_t length)
 static void DeviceManager::set_encoder_update_freq(uint16_t freq)
 {
     Timer1.setPeriod((1. / freq) * 1000000); // update timer1 period
+    Timer1.attachInterrupt(I2CEncoderDevice::update_all);
     AngleSensor::set_global_update_freq(freq); // update values in AngleSensor class
 }
 
