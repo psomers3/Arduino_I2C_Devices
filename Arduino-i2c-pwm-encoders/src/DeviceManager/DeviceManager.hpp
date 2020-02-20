@@ -20,9 +20,9 @@
 // Enum class containing the possible commands to come from the Master Device
 enum class MsgCmd : uint8_t
 {
-    NEW_PWM_DEVICE = 0x00,        // CREATE A NEW PWM DEVICE
-    NEW_ENCODER_DEVICE = 0x01,    // CREATE A NEW PWM DEVICE
-    CLEAR_DEVICES = 0X02,         // DELETE ALL STORED DEVICES
+    NEW_PWM_DEVICE = 0x00,         // CREATE A NEW PWM DEVICE
+    NEW_ENCODER_DEVICE = 0x01,     // CREATE A NEW ENCODER DEVICE
+    CLEAR_DEVICES = 0X02,          // DELETE ALL STORED DEVICES
     FWD_TO_DEV = 0x04,             // PASS MSG ON TO DEVICE TO HANDLE
     SET_ENCODER_UPDATE_FREQ = 0x05 // SET GLOBAL ENCODER UPDATE RATE IN Hz
 };
