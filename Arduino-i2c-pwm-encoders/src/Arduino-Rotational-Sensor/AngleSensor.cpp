@@ -8,14 +8,14 @@ uint8_t AngleSensor::m_num_sensors = 0;
 AngleSensor* AngleSensor::m_AngleSensor_ptr[MaxNumofSensors];
 float AngleSensor::m_global_update_freq = 20;
 
-AngleSensor::AngleSensor(uint8_t pinA, uint8_t pinB):m_encoder(pinA,pinB)
+AngleSensor::AngleSensor(uint8_t pinA, uint8_t pinB):m_encoder(pinA,pinB)  // <- encoder object is initialized here
 {
-    m_AngleSensor_ptr[m_num_sensors] = this;
+    m_AngleSensor_ptr[m_num_sensors] = this;  // add pointer of this instance to array
     m_num_sensors++;
-    m_pulses_per_rev = 2400;
+    m_pulses_per_rev = 2400;  // set resolution of testing encoder
     m_degree_per_tick = (float)DEGREES/(float)m_pulses_per_rev;
     m_radian_per_tick = (float)RADIANS/(float)m_pulses_per_rev;
-    m_use_degrees = true;
+    m_use_degrees = true;  // default to degrees
     m_counts_since_last_tick = 0;
 }
 
@@ -49,6 +49,7 @@ void AngleSensor::remove_from_sensors()
 {
     AngleSensor* temp_array[MaxNumofSensors];
     int curr_index = 0;
+    // gather all pointers to instances that are not being deleted
     for (int i=0; i < AngleSensor::get_num_sensors(); i++)
     {
         if (AngleSensor::get_sensor_ptr(i) != this)
@@ -56,11 +57,12 @@ void AngleSensor::remove_from_sensors()
             temp_array[curr_index] = AngleSensor::get_sensor_ptr(i);
         }
     }
+    // put non-deleted instances first in static storage array
     for (int i=0; i < AngleSensor::get_num_sensors(); i++)
     {
         m_AngleSensor_ptr[i] == temp_array[i];
     }
-    m_num_sensors--;
+    m_num_sensors--; // last pointer should now be ignored when looping through array
 }
 
 int32_t AngleSensor::get_position()
@@ -97,8 +99,8 @@ void AngleSensor::set_angle(float angle)
 {
     int32_t pos;
     m_use_degrees ? pos = angle / m_degree_per_tick : pos = angle/m_radian_per_tick;
-  m_last_angle = angle;
-  m_encoder.write(pos);
+    m_last_angle = angle;
+    m_encoder.write(pos);
 }
 
 static void AngleSensor::update_all()

@@ -12,19 +12,32 @@
 class AngleSensor
 {
 private:
-    static AngleSensor* m_AngleSensor_ptr[];
-    static uint8_t m_num_sensors;
-    float m_velocity; // angular velocity
-    float m_last_angle;
-    Encoder m_encoder; //encoder object used to get position
+    static AngleSensor* m_AngleSensor_ptr[];  // array of pointers to created AngleSensors
+    static uint8_t m_num_sensors;             // how many AngleSensors exist
+    float m_velocity;                         // last recorded angular velocity
+    float m_last_angle;                       // last recorded angle
+    Encoder m_encoder;                        // encoder object used to get position
+    static float m_global_update_freq;        // frequency in Hz to update sensors at
+    uint16_t m_pulses_per_rev;                // resolution of the Encoder
+    bool m_use_degrees;                       // Boolean value to use degrees or radians
+    float m_degree_per_tick;                  // how many degrees per tick of the encoder
+    float m_radian_per_tick;                  // how many radians per tick of the encoder
+    uint32_t m_counts_since_last_tick;        // how many Sensor updates since last new tick
+    
+    /// Returns number of existing AngleSensors
+    /**
+     * @return number of existing AngleSensor classes
+     */
     static uint8_t get_num_sensors();
+    
+    /// Returns pointer to the sensor at index in m_AngleSensor_ptr
+    /**
+     * @param index The index value of the desired AngleSensor in m_AngleSensor_ptr
+     *
+     * @return A pointer to an AngleSensor object
+     */
     static AngleSensor* get_sensor_ptr(uint8_t index);
-    static float m_global_update_freq;
-    uint16_t m_pulses_per_rev;
-    bool m_use_degrees;
-    float m_degree_per_tick;
-    float m_radian_per_tick;
-    uint32_t m_counts_since_last_tick;
+    
     
 public:
     ///Constructor
@@ -106,8 +119,15 @@ public:
      */
     void set_pulses_per_rev(uint16_t pulses_per_rev);
     
+    /// Filler function to return last recorded angle from standard update
+    /**
+     * @return float value of the angle of the encoder shaft
+     */
     float return_angle();
     
+    /// Clean-up function to be called before deleting object.
+    /** This is done because I don't know how to make sure the destructor is called.
+     */
     void remove_from_sensors();
     
 };//AngleSensor
