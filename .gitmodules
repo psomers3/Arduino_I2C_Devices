@@ -1,3 +1,0 @@
-[submodule "lib/Arduino-Rotational-Sensor"]
-	path = lib/Arduino-Rotational-Sensor
-	url = https://github.tik.uni-stuttgart.de/psomers/Arduino-Rotational-Sensor.git
