@@ -119,4 +119,4 @@ main.cpp
 *.xcodeproj
 lib
 *DS_Store
-ArduinoI2CDevices
+*__pycache__
