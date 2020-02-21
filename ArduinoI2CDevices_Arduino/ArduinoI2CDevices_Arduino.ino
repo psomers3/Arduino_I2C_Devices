@@ -1,3 +1,4 @@
+
 // Arduino-i2c-pwm-encoders
 //
 // Turn Arduino into PWM Driver and Quadrature Decoder with I2C communication
@@ -9,7 +10,7 @@
 // Copyright	© Peter Somers, 2020
 
 #include "Arduino.h"
-#include "src/DeviceManager/DeviceManager.hpp"
+#include "./src/DeviceManager/DeviceManager.hpp"
 #include "Wire.h"
 
 #define I2C_ADDR 4  // Statically set Arduino actual I2C address

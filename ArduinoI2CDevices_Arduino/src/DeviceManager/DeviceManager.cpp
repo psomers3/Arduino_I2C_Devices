@@ -43,6 +43,10 @@ void DeviceManager::parse_message()
     
     // Decide what needs to happen.
     switch ((MsgCmd)parsed_option) {
+            
+        case MsgCmd::NEW_SERVO_DEVICE:
+            _singleton_handler->add_servo_device(&_recieve_msg_buffer[1], _message_size-1);
+            break;
         
         case MsgCmd::NEW_ENCODER_DEVICE:  // create new encoder
             _singleton_handler->add_encoder_device(&_recieve_msg_buffer[1], _message_size-1);
@@ -90,9 +94,13 @@ static void DeviceManager::set_encoder_update_freq(uint16_t freq)
     AngleSensor::set_global_update_freq(freq); // update values in AngleSensor class
 }
 
-//void DeviceManager::add_pwm_device(char *msg, uint16_t length)
-//{}
-
+void DeviceManager::add_servo_device(char *msg, uint16_t length)
+{
+    uint8_t pin = (uint8_t)msg[0];  // get pin number from msg
+    _devices[_num_devices] = new I2CServoDevice(pin);  // create Servo device
+    Wire.write(_num_devices);  // send device index back so program knows id of new device
+    _num_devices++;  // increment number of devices}
+}
 
 void DeviceManager::clear_devices()
 {
