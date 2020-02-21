@@ -13,14 +13,15 @@
 #include "Wire.h"
 #include "../I2CDeviceWrappers/I2CDeviceWrapper.hpp"
 #include "../I2CDeviceWrappers/I2CEncoderDevice.hpp"
+#include "../I2CDeviceWrappers/I2CServoDevice.hpp"
 
-#define MAX_NUM_SENSORS 10
+#define MAX_NUM_SENSORS 15
 
 
 // Enum class containing the possible commands to come from the Master Device
 enum class MsgCmd : uint8_t
 {
-    NEW_PWM_DEVICE = 0x00,         // CREATE A NEW PWM DEVICE
+    NEW_SERVO_DEVICE = 0x00,         // CREATE A NEW PWM DEVICE
     NEW_ENCODER_DEVICE = 0x01,     // CREATE A NEW ENCODER DEVICE
     CLEAR_DEVICES = 0X02,          // DELETE ALL STORED DEVICES
     FWD_TO_DEV = 0x04,             // PASS MSG ON TO DEVICE TO HANDLE
@@ -72,7 +73,7 @@ private:
     static int _message_size;  // total size of the recieved I2C message
     
     /// This function adds a pwm device.
-    //void add_pwm_device(char* msg, uint16_t length);
+    void add_servo_device(char* msg, uint16_t length);
     
     /// This function adds an encoder device
     /**

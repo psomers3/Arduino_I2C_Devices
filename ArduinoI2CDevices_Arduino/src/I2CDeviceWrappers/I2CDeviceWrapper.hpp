@@ -10,6 +10,7 @@
 #define I2CDeviceWrapper_hpp
 
 #include <stdlib.h>
+#include <stdint.h>
 
 /// A base class for inheriting simulated devices on the Arduino.
 /** All virtual functions MUST be implemented in their inherited classes.
