@@ -1,10 +1,11 @@
 import ctypes
 import pylibi2c
 import struct
-from ArduinoEncoder import ArduinoEncoder
+from .ArduinoEncoder import ArduinoEncoder
+from .ArduinoServo import ArduinoServo
 
 first_byte_cmd = {
-    'NEW_PWM_DEVICE': 0x00,
+    'NEW_SERVO_DEVICE': 0x00,
     'NEW_ENCODER_DEVICE': 0x01,
     'CLEAR_DEVICES': 0x02,
     'FWD_TO_DEVICES': 0x03,
@@ -46,13 +47,23 @@ class ArduinoI2CBus(object):
         """
         short = struct.pack('H', freq)
         message = struct.pack('b',first_byte_cmd['SET_ENCODER_UPDATE_FREQ'])
-        new_message = bytearray()
-        new_message.extend(message)
-        new_message.extend(short)
-        new_message.extend(bytes(0x00))
+        new_message = bytearray(4)
+        new_message[0] = message
+        new_message[1:2] = short
+        new_message[-1] = bytes(0x00)
         final_message = bytes(new_message)
         message = int.from_bytes(final_message, byteorder='big')  # convert to number for i2c library
         response = self.i2c_dev.read(message, 1)
 
+    def create_servo_dev(self, pin: int, min_period=1000, max_period=2000) -> ArduinoServo:
+        """
+        :param pin_A: pwm output pin
+        :return: a handle to the new servo object
+        """
+        message = struct.pack('bbbb', first_byte_cmd['NEW_SERVO_DEVICE'], pin, 0x00, 0x00)
+        message = int.from_bytes(message, byteorder='big')  # convert to number for i2c library
+        device_id = int.from_bytes(self.i2c_dev.read(message, 1), byteorder='big')
 
-
+        new_servo = ArduinoServo(self.i2c_dev, self.arduino_addr, device_id, min_period=min_period, max_period=max_period)
+        self.devices.append(new_servo)
+        return new_servo  # type: ArduinoServo

@@ -1,1 +1,4 @@
-from .Modules import ArduinoI2CBus, ArduinoEncoder
+
+import sys
+sys.path.insert(1, '.')
+from .Modules import ArduinoI2CBus, ArduinoEncoder, ArduinoServo
