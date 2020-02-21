@@ -21,7 +21,7 @@ public:
     enum class Cmd : uint16_t
     {
         WRITE = 0x00,      // Send angle to servo
-        WRITE_MS = 0x01,   // set milliseconds of pulse
+        WRITE_MS = 0x01,   // set microseconds of pulse
         ATTACH = 0x02,     // start servo signal
         DETACH = 0x03,     // stop the servo signal
     };
