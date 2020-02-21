@@ -1,17 +1,14 @@
-from HardwareDrivers.ArduinoI2CBus.ArduinoI2CBus import ArduinoI2CBus
+from ArduinoI2CDevices_Python import ArduinoI2CBus
 import time
 
 
 if __name__ == '__main__':
+    # create the fake "Arduino Bus" of potential devices
     Arduino_bus = ArduinoI2CBus()
-    encoder = Arduino_bus.create_encoder_dev(18, 24)  # type: HardwareDrivers.ArduinoI2CBus.ArduinoEncoder
-    time.sleep(0.5)
-    encoder.get_speed()
-    is_degrees = True
+
+    # create an encoder device on the Arduino
+    encoder = Arduino_bus.create_encoder_dev(pin_A=18, pin_B=24)
 
     while 1:
-        for _ in range(500):
-            time.sleep(.01)
-            print('angle', encoder.get_angle())
-        #is_degrees = not is_degrees
-        encoder.set_degrees(is_degrees)
+        time.sleep(.1)  # print every 0.1 seconds
+        print('angle', encoder.get_angle())
