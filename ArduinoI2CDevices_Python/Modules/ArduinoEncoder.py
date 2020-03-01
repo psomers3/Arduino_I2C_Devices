@@ -13,6 +13,7 @@ commands = {
 
 FWD_TO_DEV = 0x03
 
+
 class ArduinoEncoder(object):
     def __init__(self, i2c_bus: SMBus, arduino_addr, dev_id):
         self.i2c_bus = i2c_bus
@@ -20,32 +21,42 @@ class ArduinoEncoder(object):
         self.dev_id = dev_id
 
     def get_position(self):
-        message = struct.pack('bbbb',self.dev_id, commands['GET_POSITION'], 0x00, 0x00)
-        message = int.from_bytes(message, byteorder='big')  # convert to number for i2c library
-        position = struct.unpack('I', self.i2c_bus.read(message, 4))
-        return position
+        write_msg = i2c_msg.write(self.arduino_addr, [FWD_TO_DEV, self.dev_id, commands['GET_POSITION']])
+        read_msg = i2c_msg.read(self.arduino_addr, 4)
+        self.i2c_bus.i2c_rdwr(write_msg, read_msg)
+        return struct.unpack('I', read_msg.buf[0:4])[0]
 
     def get_speed(self):
-        message = struct.pack('bbbb', self.dev_id, commands['GET_SPEED'], 0x00, 0x00)
-        message = int.from_bytes(message, byteorder='big')  # convert to number for i2c library
-        speed = struct.unpack('<f', self.i2c_bus.read(message, 4))
-        return speed
+        write_msg = i2c_msg.write(self.arduino_addr, [FWD_TO_DEV, self.dev_id, commands['GET_SPEED']])
+        read_msg = i2c_msg.read(self.arduino_addr, 4)
+        self.i2c_bus.i2c_rdwr(write_msg, read_msg)
+        return struct.unpack('<f', read_msg.buf[0:4])[0]
 
     def get_angle(self):
         write_msg = i2c_msg.write(self.arduino_addr, [FWD_TO_DEV, self.dev_id, commands['GET_ANGLE']])
         read_msg = i2c_msg.read(self.arduino_addr, 4)
         self.i2c_bus.i2c_rdwr(write_msg, read_msg)
-        angle = struct.unpack('<f', read_msg.buf[0:4])
-        return angle[0]
+        return struct.unpack('<f', read_msg.buf[0:4])[0]
 
     def set_degrees(self, use_degrees: bool):
-        message = struct.pack('bbbb', self.dev_id, commands['SET_DEGREES'], use_degrees, 0x00)
-        message = int.from_bytes(message, byteorder='big')  # convert to number for i2c library
-        response = struct.unpack('<f', self.i2c_bus.read(message, 4))
+        write_msg = i2c_msg.write(self.arduino_addr, [FWD_TO_DEV, self.dev_id, commands['SET_DEGREES'], use_degrees])
+        read_msg = i2c_msg.read(self.arduino_addr, 1)
+        self.i2c_bus.i2c_rdwr(write_msg, read_msg)
 
     def set_resolution(self, pulses_per_rev: int):
-        message = struct.pack('bbbb', self.dev_id, commands['SET_RESOLUTION'], pulses_per_rev)
-        message = int.from_bytes(message, byteorder='big')  # convert to number for i2c library
-        response = struct.unpack('<f', self.i2c_bus.read(message, 4))
+        as_bytes = struct.unpack('2B', struct.pack('H', pulses_per_rev))
+        write_msg = i2c_msg.write(self.arduino_addr,
+                                  [FWD_TO_DEV,
+                                   self.dev_id,
+                                   commands['SET_RESOLUTION'],
+                                   as_bytes[0],
+                                   as_bytes[1]])
+        read_msg = i2c_msg.read(self.arduino_addr, 1)
+        self.i2c_bus.i2c_rdwr(write_msg, read_msg)
+
+    def zero(self):
+        write_msg = i2c_msg.write(self.arduino_addr, [FWD_TO_DEV, self.dev_id, commands['ZERO']])
+        read_msg = i2c_msg.read(self.arduino_addr, 1)
+        self.i2c_bus.i2c_rdwr(write_msg, read_msg)
 
 
