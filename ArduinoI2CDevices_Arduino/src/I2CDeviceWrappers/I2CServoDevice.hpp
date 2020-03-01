@@ -18,7 +18,7 @@
 class I2CServoDevice: public I2CDeviceWrapper
 {
 public:
-    enum class Cmd : uint16_t
+    enum class Cmd : uint8_t
     {
         WRITE = 0x00,      // Send angle to servo
         WRITE_MS = 0x01,   // set microseconds of pulse
@@ -37,6 +37,8 @@ public:
 private:
     Servo _servo;  // Arduino Servo object
     uint8_t _pin;  // pin number for output signal
+    uint16_t _last_ms_cmd;  // last set command in microseconds
+    float _last_cmd;  // last set write command in degrees
 };
 
 #endif /* I2CServoDevice_hpp */

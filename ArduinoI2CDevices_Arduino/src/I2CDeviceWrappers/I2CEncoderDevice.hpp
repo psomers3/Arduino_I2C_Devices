@@ -56,30 +56,8 @@ public:
 private:
     AngleSensor* _sensor;  // Actual Encoder sensor
     
-    /// Sends position to I2C bus
-    void return_position();
-    
-    /// Sends angular speed to I2C bus
-    void return_speed();
-    
-    /// Sends encoder shaft angle to I2C bus
-    void return_angle();
-    
-    /// Sets _sensor shaft angle to zero
-    void zero();
-    
-    /// Sets units of the device
-    /**
-     * @param use_degrees When true, sets the device to degree units, when false, radians
-     */
-    void set_degrees(bool use_degrees);
-    
-    /// Sets the resolution of the encoder
-    /**
-     * @param pulses_per_rev Number of pulses of the encoder for one full revolution from one channel (A or B)
-     */
-    void set_resolution(uint16_t pulses_per_rev);
-
+    // The following variable is just for constant allocated memory to extract values from _sensor
+    float _float_extract_space;
 };
 
 

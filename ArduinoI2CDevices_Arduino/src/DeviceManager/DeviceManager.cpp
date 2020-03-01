@@ -8,6 +8,8 @@
 
 #include "DeviceManager.hpp"
 #include "TimerOne.h"
+//#include "../i2cmaster/i2cmaster.h"
+
 
 /* Initialize static variables */
 DeviceManager* DeviceManager::_singleton_handler = 0;
@@ -15,6 +17,7 @@ I2CDeviceWrapper* DeviceManager::_devices[MAX_NUM_SENSORS];
 char DeviceManager::_recieve_msg_buffer[128];
 uint8_t DeviceManager::_num_devices = 0;
 int DeviceManager::_message_size = 0;
+
 
 // SHOULD ONLY NEED TO CREATE ONE DEVICEMANAGER
 DeviceManager::DeviceManager(uint16_t encoder_update_rate)
@@ -25,12 +28,18 @@ DeviceManager::DeviceManager(uint16_t encoder_update_rate)
 
 void DeviceManager::recieve_msg(int how_many)
 {
+    //Serial.print(how_many);
+    //Serial.print(" bytes recieved: ");
     _message_size = how_many;
+    
     for (int i=0; i<how_many;i++) // read in each byte from I2C buffer and store it in member buffer
     {
         byte chunk = Wire.read();
+        //Serial.print(chunk);
+        //Serial.print(" ");
         _recieve_msg_buffer[i] = chunk;
     }
+    //Serial.print("\n");
 }
 
 void DeviceManager::parse_message()
@@ -38,11 +47,8 @@ void DeviceManager::parse_message()
     // First 4 bits contain the device ID that should get a command if applicable.
     // Second 4 bits contain the overall command that is checked in the switch case below.
     uint8_t option = (uint8_t)_recieve_msg_buffer[0]; // pull first byte
-    uint8_t parsed_option = option & 0x0f; // pull value of second 4 bits
-    int device_id = (int)((option & 0xf0)>>4);  // pull values of first 4 bits
-    
     // Decide what needs to happen.
-    switch ((MsgCmd)parsed_option) {
+    switch ((MsgCmd)option) {
             
         case MsgCmd::NEW_SERVO_DEVICE:
             _singleton_handler->add_servo_device(&_recieve_msg_buffer[1], _message_size-1);
@@ -54,18 +60,23 @@ void DeviceManager::parse_message()
             
         case MsgCmd::CLEAR_DEVICES:  // clear all devices
             clear_devices();
-            Wire.write(0x01); // send a random confirmation byte because master is expecting it
+            Wire.write(0xff);
+            //Serial.print("clearing devices\n");
             break;
             
         case MsgCmd::FWD_TO_DEV:
+            int device_id = (int)_recieve_msg_buffer[1];
+
             if (device_id < _num_devices) // check if device id is valid
-                _devices[device_id]->process_msg(&_recieve_msg_buffer[1], _message_size-1);
+                _devices[device_id]->process_msg(&_recieve_msg_buffer[2], _message_size-2);
             else
                 Wire.write(0xff); // send bad byte if not because master expects something
             break;
             
         case MsgCmd::SET_ENCODER_UPDATE_FREQ: // update global encoder update rate
             DeviceManager::set_encoder_update_freq((float) *reinterpret_cast<uint16_t*>(&_recieve_msg_buffer[1]));
+            Wire.write(0xff);
+
             break;
             
         default:
@@ -80,10 +91,11 @@ void DeviceManager::add_encoder_device(char* msg, uint16_t length)
      Should be in the form:
      pinA + pinB
      */
+
     uint8_t pinA = (uint8_t)msg[0];
     uint8_t pinB = (uint8_t)msg[1];
     _devices[_num_devices] = new I2CEncoderDevice(pinA, pinB);  // create an encoder device
-    Wire.write(_num_devices);  // send device index back so program knows id of new device
+    Wire.write((uint8_t)_num_devices);  // send device index back so program knows id of new device
     _num_devices++;  // increment number of devices
 }
 
