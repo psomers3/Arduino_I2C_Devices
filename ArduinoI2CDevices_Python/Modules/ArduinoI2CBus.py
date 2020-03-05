@@ -14,7 +14,10 @@ first_byte_cmd = {
 
 class ArduinoI2CBus(object):
     def __init__(self, i2c_bus: smbus2.SMBus, arduino_addr=4):
-        self.i2c_bus = i2c_bus
+        if isinstance(i2c_bus, int):
+            self.i2c_bus = smbus2.SMBus(bus=i2c_bus)
+        else:
+            self.i2c_bus = i2c_bus
         self.arduino_addr = arduino_addr
         self.devices = []
         self.clear_all_devices()
@@ -48,9 +51,11 @@ class ArduinoI2CBus(object):
         read_msg = smbus2.i2c_msg.read(self.arduino_addr, 1)
         self.i2c_bus.i2c_rdwr(write_msg, read_msg)
 
-    def create_servo_dev(self, pin: int, min_period=1000, max_period=2000) -> ArduinoServo:
+    def create_servo_dev(self, pin: int, min_period: int = 1000, max_period: int = 2000) -> ArduinoServo:
         """
-        :param pin_A: pwm output pin
+        :param pin: pwm output pin
+        :param min_period: pulse length in milliseconds of minimum servo movement.
+        :param max_period: pulse length in milliseconds of maximum servo movement.
         :return: a handle to the new servo object
         """
         write_msg = smbus2.i2c_msg.write(self.arduino_addr, [first_byte_cmd['NEW_SERVO_DEVICE'], pin])
