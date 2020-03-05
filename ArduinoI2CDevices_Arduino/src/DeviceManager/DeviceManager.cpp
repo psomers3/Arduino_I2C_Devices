@@ -122,5 +122,6 @@ void DeviceManager::clear_devices()
         // ^ this is done because I had issues getting the destructors to play along.
         delete _devices[i];  // deallocate memory from heap
     }
+    Wire.write(0xff);
     _num_devices = 0;
 }

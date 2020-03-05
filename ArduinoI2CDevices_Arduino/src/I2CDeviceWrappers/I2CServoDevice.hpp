@@ -32,7 +32,7 @@ public:
     /// process message from I2C bus
     void process_msg(char* msg, uint16_t length);
     
-    void remove_from_sensors(){_servo.detach();};
+    void remove_from_sensors(){_servo.detach();}
     
 private:
     Servo _servo;  // Arduino Servo object
