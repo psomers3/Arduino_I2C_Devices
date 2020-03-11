@@ -13,6 +13,8 @@
 #include "Wire.h"
 #include "../I2CDeviceWrappers/I2CDeviceWrapper.hpp"
 #include "../I2CDeviceWrappers/I2CEncoderDevice.hpp"
+#include "../I2CDeviceWrappers/I2CBLDCEncoderDevice.hpp"
+#include "../I2CDeviceWrappers/I2CBLDCSpeedDevice.hpp"
 #include "../I2CDeviceWrappers/I2CServoDevice.hpp"
 
 #define MAX_NUM_SENSORS 15
@@ -25,7 +27,8 @@ enum class MsgCmd : uint8_t
     NEW_ENCODER_DEVICE = 0x01,     // CREATE A NEW ENCODER DEVICE
     CLEAR_DEVICES = 0X02,          // DELETE ALL STORED DEVICES
     FWD_TO_DEV = 0x03,             // PASS MSG ON TO DEVICE TO HANDLE
-    SET_ENCODER_UPDATE_FREQ = 0x04 // SET GLOBAL ENCODER UPDATE RATE IN Hz
+    SET_ENCODER_UPDATE_FREQ = 0x04, // SET GLOBAL ENCODER UPDATE RATE IN Hz
+    NEW_BLDC_ENCODER_DEVICE = 0x05  // Create encoder using hall effect sensors from BLDC Motor
 };
 
 /**
@@ -81,9 +84,10 @@ private:
      *            specifying the encoder. (i.e. pin A and pin B)
      * @param length The length of msg.
      */
+    void add_BLDC_encoder_device(char* msg, uint16_t length);
     void add_encoder_device(char* msg, uint16_t length);
-    
 
+    static void encoder_update();
 };
 
 

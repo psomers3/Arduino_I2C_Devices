@@ -8,7 +8,6 @@
 
 #include "DeviceManager.hpp"
 #include "TimerOne.h"
-//#include "../i2cmaster/i2cmaster.h"
 
 
 /* Initialize static variables */
@@ -44,10 +43,12 @@ void DeviceManager::recieve_msg(int how_many)
 
 void DeviceManager::parse_message()
 {
+    int device_id;
     // First 4 bits contain the device ID that should get a command if applicable.
     // Second 4 bits contain the overall command that is checked in the switch case below.
     uint8_t option = (uint8_t)_recieve_msg_buffer[0]; // pull first byte
     // Decide what needs to happen.
+
     switch ((MsgCmd)option) {
             
         case MsgCmd::NEW_SERVO_DEVICE:
@@ -57,6 +58,10 @@ void DeviceManager::parse_message()
         case MsgCmd::NEW_ENCODER_DEVICE:  // create new encoder
             _singleton_handler->add_encoder_device(&_recieve_msg_buffer[1], _message_size-1);
             break;
+        
+        case MsgCmd::NEW_BLDC_ENCODER_DEVICE:  // create new encoder
+            _singleton_handler->add_BLDC_encoder_device(&_recieve_msg_buffer[1], _message_size-1);
+            break;
             
         case MsgCmd::CLEAR_DEVICES:  // clear all devices
             clear_devices();
@@ -65,7 +70,7 @@ void DeviceManager::parse_message()
             break;
             
         case MsgCmd::FWD_TO_DEV:
-            int device_id = (int)_recieve_msg_buffer[1];
+            device_id = (int)_recieve_msg_buffer[1];
 
             if (device_id < _num_devices) // check if device id is valid
                 _devices[device_id]->process_msg(&_recieve_msg_buffer[2], _message_size-2);
@@ -76,7 +81,6 @@ void DeviceManager::parse_message()
         case MsgCmd::SET_ENCODER_UPDATE_FREQ: // update global encoder update rate
             DeviceManager::set_encoder_update_freq((float) *reinterpret_cast<uint16_t*>(&_recieve_msg_buffer[1]));
             Wire.write(0xff);
-
             break;
             
         default:
@@ -85,12 +89,30 @@ void DeviceManager::parse_message()
             break;
     }
 }
+
+void DeviceManager::add_BLDC_encoder_device(char* msg, uint16_t length)
+{
+    /* decipher rest of message for pin configuration...
+     Should be in the form:
+     pinA + pinB
+     */
+    Serial.print("making bldc\n");
+
+    uint8_t pinA = (uint8_t)msg[0];
+    uint8_t pinB = (uint8_t)msg[1];
+    uint8_t pinC = (uint8_t)msg[2];
+    _devices[_num_devices] = new I2CBLDCEncoderDevice(pinA, pinB, pinC);  // create an encoder device
+    Wire.write((uint8_t)_num_devices);  // send device index back so program knows id of new device
+    _num_devices++;  // increment number of devices
+}
+
 void DeviceManager::add_encoder_device(char* msg, uint16_t length)
 {
     /* decipher rest of message for pin configuration...
      Should be in the form:
      pinA + pinB
      */
+    Serial.print("making encoder\n");
 
     uint8_t pinA = (uint8_t)msg[0];
     uint8_t pinB = (uint8_t)msg[1];
@@ -102,12 +124,21 @@ void DeviceManager::add_encoder_device(char* msg, uint16_t length)
 static void DeviceManager::set_encoder_update_freq(uint16_t freq)
 {
     Timer1.setPeriod((1. / freq) * 1000000); // update timer1 period
-    Timer1.attachInterrupt(I2CEncoderDevice::update_all);
+    Timer1.attachInterrupt(encoder_update);
     AngleSensor::set_global_update_freq(freq); // update values in AngleSensor class
+    BLDCAngleSensor::set_global_update_freq(freq);
+}
+
+static void DeviceManager::encoder_update()
+{
+    I2CEncoderDevice::update_all();
+    I2CBLDCEncoderDevice::update_all();
 }
 
 void DeviceManager::add_servo_device(char *msg, uint16_t length)
 {
+    Serial.print("making servo\n");
+
     uint8_t pin = (uint8_t)msg[0];  // get pin number from msg
     _devices[_num_devices] = new I2CServoDevice(pin);  // create Servo device
     Wire.write(_num_devices);  // send device index back so program knows id of new device

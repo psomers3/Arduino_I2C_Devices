@@ -22,6 +22,7 @@ void setup() {
     Wire.begin(I2C_ADDR); // join i2c bus with address
     Wire.onReceive(manager.recieve_msg); // pull mesage from I2C
     Wire.onRequest(manager.parse_message); // parse message from I2C
-    //Serial.begin(9600);
+    //Serial.begin(57600);
+    //Serial.print("connected\n");
 }
 void loop() {}
