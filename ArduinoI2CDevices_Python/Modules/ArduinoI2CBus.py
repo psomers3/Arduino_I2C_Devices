@@ -8,7 +8,8 @@ first_byte_cmd = {
     'NEW_ENCODER_DEVICE': 0x01,
     'CLEAR_DEVICES': 0x02,
     'FWD_TO_DEVICES': 0x03,
-    'SET_ENCODER_UPDATE_FREQ': 0x04
+    'SET_ENCODER_UPDATE_FREQ': 0x04,
+    'NEW_BLDC_ENCODER_DEVICE': 0x05
 }
 
 
@@ -27,12 +28,25 @@ class ArduinoI2CBus(object):
         read_msg = smbus2.i2c_msg.read(self.arduino_addr, 1)
         self.i2c_bus.i2c_rdwr(write_msg, read_msg)
 
+    def create_BLDC_encoder_dev(self, pin_A: int, pin_B: int, pin_C: int) -> ArduinoEncoder:
+        """
+        :param pin_A: Hall Effect A wire
+        :param pin_B: Hall Effect B wire
+        :param pin_C: Hall Effect C wire
+        :return: a handle to new encoder device
+        """
+        write_msg = smbus2.i2c_msg.write(self.arduino_addr, [first_byte_cmd['NEW_BLDC_ENCODER_DEVICE'], pin_A, pin_B, pin_C])
+        read_msg = smbus2.i2c_msg.read(self.arduino_addr, 1)
+        self.i2c_bus.i2c_rdwr(write_msg, read_msg)
+        new_encoder = ArduinoEncoder(self.i2c_bus, self.arduino_addr, ord(read_msg.buf[0]))
+        self.devices.append(new_encoder)
+        return new_encoder  # type: ArduinoEncoder
+
     def create_encoder_dev(self, pin_A: int, pin_B: int) -> ArduinoEncoder:
         """
-
         :param pin_A: encoder A wire
         :param pin_B: encoder B wire
-        :return:
+        :return: a handle to new encoder device
         """
         write_msg = smbus2.i2c_msg.write(self.arduino_addr, [first_byte_cmd['NEW_ENCODER_DEVICE'], pin_A, pin_B])
         read_msg = smbus2.i2c_msg.read(self.arduino_addr, 1)
