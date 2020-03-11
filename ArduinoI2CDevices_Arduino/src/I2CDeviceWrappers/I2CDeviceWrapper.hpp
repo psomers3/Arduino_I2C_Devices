@@ -32,7 +32,7 @@ public:
     /// A function that is called when the devices are cleared from the Arduino.
     /** This is not virtual in case a sub-class does not need to do anything special upon removal.
      */
-    void remove_from_sensors(){};
+    virtual void remove_from_sensors();
 };
 
 
