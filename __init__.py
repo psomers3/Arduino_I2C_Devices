@@ -1,1 +1,1 @@
-from .ArduinoI2CDevices_Python import ArduinoI2CBus, ArduinoEncoder, ArduinoServo
+import .ArduinoI2CDevices_Python.ArduinoI2C as ArduinoI2C

@@ -1,4 +1,4 @@
-from ..Modules import ArduinoI2CBus
+from ..ArduinoI2C import ArduinoI2CBus
 import time
 
 
