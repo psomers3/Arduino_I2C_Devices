@@ -1,3 +1,3 @@
 [submodule "ArduinoI2CDevices_Arduino/src/Arduino-Rotational-Sensor"]
-	path = ArduinoI2CDevices_Arduino/src/Arduino-Angle-Sensor
-	url = https://github.com/psomers3/Arduino-Angle-Sensor.git
+	path = ArduinoI2CDevices_Arduino/src/Arduino-Rotational-Sensor
+	url = https://github.com/psomers3/Arduino-Rotational-Sensor.git
