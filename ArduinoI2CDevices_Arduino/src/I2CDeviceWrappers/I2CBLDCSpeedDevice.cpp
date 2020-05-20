@@ -20,9 +20,10 @@ void I2CBLDCSpeedDevice::process_msg(char *msg, uint16_t length)
     switch (option) {
         case Cmd::GET_SPEED:
             _float_extract_space = _sensor->get_speed();
-            Wire.write(reinterpret_cast<char*>(&_float_extract_space), 4); // write to I2C bus
+            Wire.write(reinterpret_cast<char*>(&_float_extract_space), sizeof(_float_extract_space)); // write to I2C bus
             break;
         default:
+            Serial.print("default\n");
             Wire.write(0xff);
             break;
     }

@@ -101,7 +101,7 @@ void DeviceManager::add_BLDC_encoder_device(char* msg, uint16_t length)
     uint8_t pinA = (uint8_t)msg[0];
     uint8_t pinB = (uint8_t)msg[1];
     uint8_t pinC = (uint8_t)msg[2];
-    _devices[_num_devices] = new I2CBLDCEncoderDevice(pinA, pinB, pinC);  // create an encoder device
+    _devices[_num_devices] = new I2CBLDCSpeedDevice(pinA, pinB, pinC);  // create an encoder device
     Wire.write((uint8_t)_num_devices);  // send device index back so program knows id of new device
     _num_devices++;  // increment number of devices
 }
